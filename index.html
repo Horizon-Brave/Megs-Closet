@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Meg's Closet — Makeup Try-On</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FCFBF7;--card:#FFFFFF;--ink:#21302A;--muted:#7E867E;--line:#E9E0CF;--line-strong:#DCCDB2;
+    --emerald:#1A7A57;--emerald-deep:#125C41;--emerald-soft:#7FC2A4;--emerald-tint:#E7F2EC;
+    --oak:#B5854E;--oak-deep:#8A6238;--oak-light:#E9D7BB;
+    --shadow:0 1px 2px rgba(33,48,42,.05), 0 10px 26px rgba(33,48,42,.07);--radius:14px;
+    --display:"Fraunces", Georgia, "Times New Roman", serif;
+    --sans:"Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--oak-deep);font-weight:600}
+
+  header{padding:22px clamp(16px,4vw,40px) 10px;max-width:1280px;margin:0 auto}
+  .brand{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+  .mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--emerald),var(--emerald-deep));display:flex;align-items:center;justify-content:center;color:#fff;flex:0 0 auto;box-shadow:0 4px 12px rgba(18,92,65,.28)}
+  .mark span{font-family:var(--display);font-weight:600;font-size:18px;line-height:1}
+  .brand h1{font-family:var(--display);font-weight:500;font-size:clamp(25px,4vw,38px);letter-spacing:-.01em;margin:0;line-height:1}
+  .brand .tag{color:var(--muted);font-size:14px;max-width:42ch}
+  .rule{height:1px;background:linear-gradient(90deg,var(--oak-light),var(--line),transparent);margin:16px 0 0}
+
+  .wrap{max-width:1280px;margin:0 auto;padding:18px clamp(16px,4vw,40px) 60px;display:grid;gap:22px;grid-template-columns:1fr}
+  @media (min-width:980px){.wrap{grid-template-columns:minmax(0,1.35fr) minmax(330px,.95fr);align-items:start}.signature{grid-column:1 / -1}}
+
+  .stage-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+  .stage-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+  .stage-head .left{display:flex;align-items:center;gap:10px;min-width:0}
+  .stage-actions{display:flex;gap:8px;flex-wrap:wrap}
+
+  .modelbar{display:flex;align-items:center;gap:10px 18px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--emerald-tint);flex-wrap:wrap}
+  .mgroup{display:flex;align-items:center;gap:8px}
+  .modelbar .lab{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--emerald-deep);font-weight:600}
+  .mdots{display:flex;gap:7px}
+  .mdot{width:26px;height:26px;border-radius:50%;cursor:pointer;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.08),0 2px 5px rgba(0,0,0,.12);transition:transform .1s, box-shadow .12s}
+  .mdot:hover{transform:scale(1.12)}
+  .mdot.sel{box-shadow:0 0 0 2px #fff,0 0 0 4px var(--emerald)}
+  .mshuffle{margin-left:2px}
+
+  .stage-body{position:relative;background:radial-gradient(120% 80% at 50% 0%, #fff 0%, #FBF7EF 60%, #F4ECDD 100%);min-height:340px;display:flex;align-items:center;justify-content:center;padding:14px}
+  #stageCanvas{max-width:100%;max-height:68vh;border-radius:8px;display:none;touch-action:none;cursor:crosshair;box-shadow:0 6px 22px rgba(33,48,42,.12)}
+  .empty{text-align:center;color:var(--muted);max-width:40ch;padding:26px 10px}
+  .empty .ico{width:54px;height:54px;border-radius:50%;margin:0 auto 14px;border:1px dashed var(--line-strong);display:flex;align-items:center;justify-content:center;color:var(--emerald)}
+  .empty h3{font-family:var(--display);font-weight:500;color:var(--ink);margin:0 0 6px;font-size:20px}
+  .empty .opts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+
+  .btn{font-family:var(--sans);font-size:13px;font-weight:600;border:1px solid var(--line-strong);background:#fff;color:var(--ink);padding:9px 14px;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;gap:7px;transition:border-color .15s, background .15s, color .15s, transform .05s;white-space:nowrap}
+  .btn:hover{border-color:var(--emerald-soft)}
+  .btn:active{transform:translateY(1px)}
+  .btn.primary{background:var(--emerald);border-color:var(--emerald);color:#fff}
+  .btn.primary:hover{background:var(--emerald-deep)}
+  .btn.oak{background:var(--oak);border-color:var(--oak);color:#fff}
+  .btn.oak:hover{background:var(--oak-deep)}
+  .btn.ghost{background:transparent}
+  .btn.on{background:var(--emerald);border-color:var(--emerald);color:#fff}
+  .btn[disabled]{opacity:.4;cursor:not-allowed}
+  .btn svg{width:15px;height:15px}
+
+  .kit{display:flex;flex-direction:column;gap:18px}
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px}
+  .panel h2{margin:0 0 12px;font-family:var(--display);font-weight:500;font-size:18px;letter-spacing:-.01em}
+
+  .shade-card{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+  .shade-swatch{width:58px;height:58px;border-radius:12px;flex:0 0 auto;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06), 0 4px 12px rgba(33,48,42,.14)}
+  .shade-meta .name{font-family:var(--display);font-size:19px;font-weight:500;line-height:1.1}
+  .shade-meta .sub{font-size:12px;color:var(--muted);margin-top:3px}
+  .shade-meta .hex{font-variant-numeric:tabular-nums;letter-spacing:.04em}
+
+  .tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px;margin-bottom:10px;scrollbar-width:thin}
+  .tab{font-size:12px;font-weight:600;color:var(--muted);background:transparent;border:1px solid var(--line);padding:7px 12px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:all .15s}
+  .tab.active{color:#fff;background:var(--ink);border-color:var(--ink)}
+
+  .swatches{display:flex;flex-direction:column;gap:14px}
+  .swgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(34px,1fr));gap:8px}
+  .swglabel{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--oak-deep);font-weight:600;margin:2px 0 -4px;display:flex;align-items:center;gap:8px}
+  .swglabel::after{content:"";flex:1;height:1px;background:var(--line)}
+  .sw{aspect-ratio:1;border-radius:9px;cursor:pointer;position:relative;box-shadow:inset 0 0 0 1px rgba(0,0,0,.07);transition:transform .08s, box-shadow .12s}
+  .sw:hover{transform:scale(1.08)}
+  .sw.neon::before{content:"";position:absolute;inset:-2px;border-radius:11px;background:inherit;filter:blur(4px);opacity:.55;z-index:-1}
+  .sw.spark::after{content:"";position:absolute;inset:0;border-radius:9px;background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,.9) 0.5px, transparent 1.4px),
+    radial-gradient(circle at 70% 60%, rgba(255,255,255,.8) 0.5px, transparent 1.4px),
+    radial-gradient(circle at 50% 80%, rgba(255,255,255,.7) 0.5px, transparent 1.3px);
+    background-size:100% 100%;opacity:.85;pointer-events:none}
+  .sw.sel{box-shadow:inset 0 0 0 1px rgba(0,0,0,.07), 0 0 0 2px #fff, 0 0 0 4px var(--emerald)}
+
+  .ctrl{margin-bottom:16px}
+  .ctrl:last-child{margin-bottom:0}
+  .ctrl .lab{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .ctrl .lab .v{font-size:12px;color:var(--emerald-deep);font-weight:600;font-variant-numeric:tabular-nums}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;border-radius:4px;background:linear-gradient(90deg,var(--emerald) 0%,var(--oak-light) 100%);outline:none}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;cursor:pointer;box-shadow:0 1px 4px rgba(33,48,42,.3);border:1px solid var(--line-strong)}
+  input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#fff;cursor:pointer;border:1px solid var(--line-strong)}
+  .seg{display:flex;flex-wrap:wrap;gap:6px}
+  .seg button{flex:1 1 auto;min-width:64px;font-size:12px;font-weight:600;color:var(--muted);background:#fff;border:1px solid var(--line);padding:9px 6px;border-radius:9px;cursor:pointer;transition:all .12s}
+  .seg button.active{color:#fff;background:var(--emerald);border-color:var(--emerald)}
+  .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .switch{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--ink);cursor:pointer;user-select:none}
+  .switch input{display:none}
+  .switch .track{width:38px;height:22px;border-radius:999px;background:var(--line-strong);position:relative;transition:background .15s;flex:0 0 auto}
+  .switch .track::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;transition:transform .15s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+  .switch input:checked + .track{background:var(--emerald)}
+  .switch input:checked + .track::after{transform:translateX(16px)}
+
+  .signature{background:linear-gradient(180deg,#fff, #FBF7EF);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:20px clamp(16px,3vw,28px) 24px}
+  .sig-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:4px}
+  .sig-head h2{font-family:var(--display);font-weight:500;font-size:clamp(20px,3vw,26px);margin:0;letter-spacing:-.01em}
+  .sig-head h2 em{font-style:italic;color:var(--emerald)}
+  .sig-sub{color:var(--muted);font-size:13px;max-width:60ch;margin:2px 0 18px}
+  .ladder{display:grid;grid-template-columns:repeat(7,1fr);gap:clamp(6px,1.4vw,14px)}
+  @media (max-width:640px){.ladder{grid-template-columns:repeat(4,1fr)} .ladder .tone:nth-child(n+5){display:none}}
+  .tone{display:flex;flex-direction:column;gap:7px;align-items:center}
+  .tone canvas{width:100%;border-radius:10px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.05), 0 3px 10px rgba(33,48,42,.09);display:block}
+  .tone .nm{font-size:10px;color:var(--muted);text-align:center;letter-spacing:.03em}
+  .oakline{height:1px;background:linear-gradient(90deg,transparent,var(--oak),transparent);margin:18px 0 0;opacity:.5}
+
+  .hint{font-size:12px;color:var(--muted);margin-top:10px;display:flex;gap:7px;align-items:flex-start}
+  .hint svg{flex:0 0 auto;margin-top:1px;width:14px;height:14px;color:var(--emerald)}
+  input[type=file]{display:none}
+  .footnote{max-width:1280px;margin:0 auto;padding:0 clamp(16px,4vw,40px) 50px;color:var(--muted);font-size:12px;line-height:1.6}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="mark"><span>M</span></div>
+    <h1>Meg's Closet</h1>
+    <span class="tag">A makeup try-on lab. Brush original cosmetic shades onto your own photo — or a built-in model — and watch them behave like real product on skin.</span>
+  </div>
+  <div class="rule"></div>
+</header>
+
+<div class="wrap">
+
+  <section class="stage-card">
+    <div class="stage-head">
+      <div class="left"><span class="eyebrow">Your canvas</span></div>
+      <div class="stage-actions">
+        <label class="btn primary" for="file">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+          Upload photo
+        </label>
+        <button class="btn ghost" id="beforeBtn" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg>
+          Hold to compare
+        </button>
+        <button class="btn ghost" id="undoBtn" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 14L4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-1"/></svg>
+          Undo
+        </button>
+        <button class="btn ghost" id="resetBtn" disabled>Clear</button>
+        <button class="btn ghost" id="saveBtn" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+          Save
+        </button>
+      </div>
+    </div>
+
+    <div class="modelbar">
+      <div class="mgroup"><span class="lab">Skin</span><div class="mdots" id="mdots"></div></div>
+      <div class="mgroup"><span class="lab">Eyes</span><div class="mdots" id="eyedots"></div></div>
+      <div class="mgroup"><span class="lab">Hair</span><div class="mdots" id="hairdots"></div></div>
+      <button class="btn ghost mshuffle" id="shuffleBtn" style="padding:6px 11px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M21 16v5h-5"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/></svg>
+        Surprise me
+      </button>
+    </div>
+
+    <div class="stage-body">
+      <canvas id="stageCanvas"></canvas>
+      <div class="empty" id="empty">
+        <div class="ico">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg>
+        </div>
+        <h3>Choose your face!</h3>
+        Upload a close-up of a face, arm, or leg — or skip the camera entirely and play on one of five built-in model faces, fair to deep.
+        <div class="opts">
+          <label class="btn primary" for="file">Upload a photo</label>
+          <button class="btn oak" id="useModelBtn">Use a model</button>
+        </div>
+      </div>
+    </div>
+
+    <div style="padding:12px 16px;border-top:1px solid var(--line)">
+      <div class="hint">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+        <span>Photos stay on your device — nothing is uploaded. Keep <strong>Skin only</strong> on so color won't stray onto hair, brows, or background. Eyes &amp; Hair colors apply to the model faces.</span>
+      </div>
+    </div>
+  </section>
+
+  <aside class="kit">
+    <div class="panel">
+      <div class="shade-card">
+        <div class="shade-swatch" id="selSwatch"></div>
+        <div class="shade-meta">
+          <div class="name" id="selName">Crushed Garnet</div>
+          <div class="sub"><span id="selCat">Lip</span> · <span class="hex" id="selHex">#9E2A33</span></div>
+        </div>
+      </div>
+      <div class="tabs" id="tabs"></div>
+      <div class="swatches" id="swatches"></div>
+    </div>
+
+    <div class="panel">
+      <h2>How it sits</h2>
+      <div class="ctrl">
+        <div class="lab"><span class="eyebrow">Coverage</span><span class="v" id="covV">70%</span></div>
+        <input type="range" id="coverage" min="5" max="100" value="70" />
+      </div>
+      <div class="ctrl">
+        <div class="lab"><span class="eyebrow">Finish</span></div>
+        <div class="seg" id="finish">
+          <button data-f="matte">Matte</button>
+          <button data-f="satin" class="active">Satin</button>
+          <button data-f="sheer">Sheer</button>
+          <button data-f="glossy">Glossy</button>
+          <button data-f="shimmer">Shimmer</button>
+          <button data-f="glitter">Glitter</button>
+          <button data-f="metallic">Metallic</button>
+        </div>
+      </div>
+      <div class="ctrl">
+        <div class="lab"><span class="eyebrow">Brush size</span><span class="v" id="brushV">34 px</span></div>
+        <input type="range" id="brush" min="6" max="90" value="34" />
+      </div>
+      <div class="ctrl">
+        <div class="row" style="justify-content:space-between">
+          <label class="switch"><input type="checkbox" id="skinOnly" checked /><span class="track"></span><span>Skin only</span></label>
+          <button class="btn ghost" id="eraseBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 20H7L3 16a2 2 0 0 1 0-3l9-9 8 8-7 8"/></svg>
+            Erase
+          </button>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <section class="signature">
+    <div class="sig-head">
+      <h2>One shade, <em>every skin</em></h2>
+      <span class="eyebrow" id="sigShade">Crushed Garnet · Satin</span>
+    </div>
+    <p class="sig-sub">The same pigment never reads the same twice. Below is your selected shade on a range of undertones from fair to deep — the lightness and warmth underneath shift the result, exactly the way it happens at the mirror.</p>
+    <div class="ladder" id="ladder"></div>
+    <div class="oakline"></div>
+    <div class="hint" style="margin-top:14px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a7 7 0 0 0-7 7c0 3 2 5 2 7h10c0-2 2-4 2-7a7 7 0 0 0-7-7z"/><path d="M9 21h6"/></svg>
+      <span>A bright shade stays vivid on fair skin but turns deeper and richer on darker skin — that difference is the underlying tone doing the work, not a filter on top.</span>
+    </div>
+  </section>
+</div>
+
+<input type="file" id="file" accept="image/*" />
+
+<p class="footnote">Shade names and color values in this lab are original and were created for this tool — not taken from, and not reproducing, any brand's proprietary names or palettes. Model faces are illustrated and rendered in-app; no photographs of real people are used. Built as a working prototype to show the rendering approach.</p>
+
+<script>
+/* ====================== COLOR SCIENCE: sRGB <-> CIELAB ====================== */
+const Xn=0.95047, Yn=1.0, Zn=1.08883;
+function srgb2lin(c){c/=255;return c<=0.04045?c/12.92:Math.pow((c+0.055)/1.055,2.4);}
+function lin2srgb(c){c=c<=0.0031308?12.92*c:1.055*Math.pow(c,1/2.4)-0.055;return Math.max(0,Math.min(255,Math.round(c*255)));}
+function f(t){return t>0.008856451679?Math.cbrt(t):(7.787037*t+16/116);}
+function finv(t){const t3=t*t*t;return t3>0.008856451679?t3:(t-16/116)/7.787037;}
+function rgb2lab(r,g,b){const R=srgb2lin(r),G=srgb2lin(g),B=srgb2lin(b);
+  const X=(R*0.4124+G*0.3576+B*0.1805)/Xn,Y=(R*0.2126+G*0.7152+B*0.0722)/Yn,Z=(R*0.0193+G*0.1192+B*0.9505)/Zn;
+  const fx=f(X),fy=f(Y),fz=f(Z);return [116*fy-16,500*(fx-fy),200*(fy-fz)];}
+function lab2rgb(L,a,b){const fy=(L+16)/116,fx=fy+a/500,fz=fy-b/200;
+  const X=Xn*finv(fx),Y=Yn*finv(fy),Z=Zn*finv(fz);
+  const R=X*3.2406+Y*-1.5372+Z*-0.4986,G=X*-0.9689+Y*1.8758+Z*0.0415,B=X*0.0557+Y*-0.2040+Z*1.0570;
+  return [lin2srgb(R),lin2srgb(G),lin2srgb(B)];}
+function hex2rgb(h){h=h.replace('#','');return [parseInt(h.substr(0,2),16),parseInt(h.substr(2,2),16),parseInt(h.substr(4,2),16)];}
+function mixHex(a,b,t){const A=hex2rgb(a),B=hex2rgb(b);const r=Math.round(A[0]+(B[0]-A[0])*t),g=Math.round(A[1]+(B[1]-A[1])*t),c=Math.round(A[2]+(B[2]-A[2])*t);return '#'+[r,g,c].map(x=>x.toString(16).padStart(2,'0')).join('');}
+
+const KL={matte:0.42,satin:0.32,sheer:0.18,glossy:0.26,shimmer:0.34,glitter:0.34,metallic:0.40};
+function blend(br,bg,bb, mr,mg,mb, cov, finish){
+  const [Lb,ab,bb_]=rgb2lab(br,bg,bb);
+  const [Lm,am,bm]=rgb2lab(mr,mg,mb);
+  const kL=KL[finish]??0.32, kC=finish==='sheer'?0.62:1.0;
+  let L=Lb+(Lm-Lb)*kL*cov;
+  let A=ab+(am-ab)*cov*kC;
+  let B=bb_+(bm-bb_)*cov*kC;
+  if(finish==='matte'){ if(Lb>72) L-=(Lb-72)*0.14*cov; }
+  else if(finish==='glossy'){ if(Lb>70) L+=(Lb-70)*0.55*cov; const ch=Math.hypot(A,B); if(ch>0){A*=1+0.12*cov;B*=1+0.12*cov;} }
+  else if(finish==='metallic'){ if(Lb>58) L+=(Lb-58)*0.42*cov; const ch=Math.hypot(A,B); if(ch>0){A*=1+0.22*cov;B*=1+0.22*cov;} }
+  return lab2rgb(L,A,B);
+}
+function sparkle(x,y,finish){
+  if(finish!=='shimmer'&&finish!=='glitter') return 0;
+  const glitter=finish==='glitter', cell=glitter?4.6:2.3;
+  const cx=Math.floor(x/cell), cy=Math.floor(y/cell);
+  let h=Math.sin(cx*12.9898+cy*78.233)*43758.5453; h-=Math.floor(h);
+  const thr=glitter?0.86:0.62;
+  if(h<thr) return 0;
+  return (glitter?0.95:0.45)*((h-thr)/(1-thr));
+}
+
+/* ====================== SHADE LIBRARY (original names) ======================
+   Entry = [name, hex] | [name, hex, "neon"] | [name, hex, "spark"] */
+const LIBRARY = {
+  "Lip": [
+    ["Crushed Garnet","#9E2A33"],["True Signal","#C8323B"],["Cool Siren","#B81D3E"],["Scarlet Hour","#D64045"],
+    ["Brick Letter","#A23E37"],["Tomato Vine","#D85A45"],["Ruby Cellar","#8E1F2B"],["Pale Petal","#D9A38C"],
+    ["Bare Linen","#C98E78"],["Warm Hush","#B97D67"],["Rosewood Nude","#C08573"],["Caramel Veil","#9C6A55"],
+    ["Toffee Wrap","#8A5B49"],["Cocoa Bare","#6E4636"],["Deep Mocha","#5A382B"],["First Blush","#E59FAE"],
+    ["Soft Rose","#D06E86"],["Dusty Album","#BC6A78"],["Quiet Mauve","#A86A78"],["Fuchsia Note","#C13D72"],
+    ["Magenta Pop","#B92E6A"],["Raspberry Ink","#9E2E54"],["Berry Wine","#7C2742"],["Plum Letter","#6B2E48"],
+    ["Oxblood Velvet","#54232E"],["Cellar Wine","#5E1F33"],["Sangria Dusk","#73213B"],["Coral Reef","#E3705E"],
+    ["Soft Coral","#E08A77"],["Papaya Light","#E27A4E"],["Apricot Linen","#DB8B63"],["Burnt Marigold","#C25A36"],
+    ["Terracotta Clay","#A85C45"],["Chestnut Lane","#8B5240"],["Chocolate Bar","#5C3A2E"],["Cinnamon Stem","#97543B"],
+    ["Lilac Mist","#B58FB8"],["Violet Study","#7C4A86"],["Deep Iris","#4E2A55"],["Black Cherry","#3A2230"],
+    ["Jet Black","#17141A"],["Pure White","#F2EDE7"]
+  ],
+  "Shadows & Blush": [
+    ["Champagne Linen","#E6CBB0"],["Soft Ivory","#EDE0D2"],["Soft Taupe","#B79A86"],["Warm Taupe","#9C8270"],
+    ["Greige Stone","#948A7E"],["Taupe Smoke","#6E6660"],["Bronze Field","#9C6B43"],["Chestnut Brown","#7E5240"],
+    ["Cocoa Powder","#6E4A35"],["Espresso Line","#4A3228"],["Soft Smoke","#4A4A52"],["Charcoal Veil","#33333A"],
+    ["Warm Sand","#D8B48E"],["Fawn","#C8A582"],["Mushroom","#A89684"],["Putty","#BFB0A0"],["Stone Grey","#8C8880"],
+    ["Dove Grey","#B2ADA4"],["Pecan","#8A6448"],["Mocha Rose","#9C7268"],["Cocoa Rose","#7E5A54"],
+    ["Black","#000000"],["White","#FFFFFF"],["Bright Grey","#C4C8CE"],
+    ["Soft Rosewood","#C97A6E"],["Coral Red","#D85A4E"],["Poppy Red","#D23B33"],["Vermilion","#C42B2B"],["Bright Red","#E82433"],
+    ["Crimson","#B02230"],["Russet Red","#A8412E"],["Brick Red","#A23E37"],["Cherry Red","#9E2A33"],
+    ["Garnet","#8E2230"],["Marsala","#8E4A48"],["Soft Brick","#B5685A"],["Burgundy","#6E2230"],["Wine Red","#5A1F2B"],
+    ["Peach Cream","#F2BC92"],["Soft Apricot","#EBA873"],["Dusty Coral","#D08A78"],["Marigold","#E08A3C"],["Tangerine","#E2702E"],
+    ["Pumpkin","#C76A2A"],["Burnt Orange","#C25A2E"],["Amber Spice","#C77A30"],["Terracotta","#B0603E"],
+    ["Clay Orange","#A85C3E"],["Rust","#9E5232"],["Sienna","#8B4A2E"],
+    ["Soft Butter","#EFD98C"],["Maize","#E6C84E"],["Lemon Zest","#E8D24E"],["Citrine","#D4BC3E"],
+    ["Golden Yellow","#D8B43A"],["Honey Matte","#CFA24E"],["Mustard","#C0992E"],["Ochre","#B8902E"],["Bright Yellow","#FFD61A"],
+    ["Pistachio","#B6C68A"],["Chartreuse","#A8B84E"],["Sage","#9CA87E"],["Sage Grey","#8A968A"],["Olive Drab","#7A7A50"],
+    ["Fern","#6E8A4E"],["Olive","#6E7A3C"],["Moss","#5A6E34"],["Emerald Matte","#2E8B57"],["Bright Green","#2BA84C"],["Pine","#355E45"],["Forest","#2E5E3A"],
+    ["Mint","#9ED6C4"],["Seafoam","#7FC2A4"],["Aqua","#4FA8A0"],["Lagoon","#1E8E82"],
+    ["Teal","#2E6E6E"],["Teal Grey","#5E7676"],["Peacock","#2C7090"],["Deep Teal","#1E5252"],
+    ["Powder Blue","#A8C0D8"],["Sky Blue","#6E9ED2"],["Cornflower","#5E78C0"],["Denim","#4A6E9E"],["Steel Blue","#6E8090"],
+    ["Slate Blue","#5E6B82"],["Cobalt","#2E5AA0"],["Bright Blue","#2A6FE0"],["Sapphire","#2E4A8C"],["Indigo","#3A3A6E"],["Navy","#2E3A5C"],
+    ["Lilac","#C0A4DA"],["Lavender","#A892C0"],["Wisteria","#9C7AC0"],["Orchid","#9C5AA8"],
+    ["Violet","#7C4A86"],["Amethyst Matte","#6E3A8C"],["Bright Purple","#9239D8"],["Mauve Smoke","#8A6A82"],["Mauve Taupe","#9A7E80"],
+    ["Plum","#5E3A5E"],["Deep Purple","#4E2A55"],["Eggplant","#4A2E44"],["Aubergine","#3E2A3A"],
+    ["Ballet Pink","#EDB8C4"],["Petal Pink","#E8A6AE"],["Dusty Rose","#C28B8A"],["Rose Pink","#D97385"],["Bubblegum","#E07AA8"],
+    ["Hot Pink","#D2407E"],["Fuchsia","#C13D72"],["Berry Pink","#BC4E7E"],["Magenta","#A0306E"],["Mauve Pink","#C58A93"],
+    ["Peach Glow","#F0A98A"],["Soft Coral Cheek","#EE9079"],["Warm Apricot","#E89A6E"],["Rosy Morning","#D9738F"],
+    ["Berry Flush","#B05468"],["Brick Bloom","#B0594A"],["Plum Flush","#8A4A5C"],["Bronze Cheek","#A8694C"],
+    ["Deep Rose","#9C4F60"],["Mauve Wash","#C892A0"],["Clay Blush","#BE7158"],["Lit Apricot","#F0B488"],["Rose Sheen","#E0978F"],
+    ["Neon Green","#39FF6A","neon"],["Electric Lime","#C6FF1F","neon"],["Acid Yellow","#E4FF1A","neon"],["Neon Yellow","#FBFF3D","neon"],
+    ["Highlighter Orange","#FF7A1A","neon"],["Neon Tangerine","#FF5E1A","neon"],["Neon Coral","#FF5E5E","neon"],["Hot Red","#FF1F3D","neon"],
+    ["Neon Pink","#FF3DA6","neon"],["Shock Magenta","#FF2EC4","neon"],["Electric Fuchsia","#F61FD0","neon"],["Neon Purple","#B23DFF","neon"],
+    ["Ultraviolet","#8A2EFF","neon"],["Electric Blue","#2E6BFF","neon"],["Neon Cyan","#1FE8FF","neon"],["Aqua Glow","#1FFFD0","neon"],
+    ["Neon Teal","#1FFFB0","neon"],["Neon Mint","#5BFFB0","neon"],
+    ["Gilded Hour","#C9A24E","spark"],["Antique Gold","#B08940","spark"],["Copper Coil","#B06A3E","spark"],["Rose Gold Dust","#C98873","spark"],
+    ["Amber Glass","#C07A3C","spark"],["Mauve Frost","#B493A0","spark"],["Pearl Light","#F0E6D8","spark"],["Champagne Glow","#ECD3AE","spark"],
+    ["Rose Quartz","#EBC4B8","spark"],["Gold Lustre","#DCBB6E","spark"],["Bronze Sheen","#C08A5A","spark"],["Opal Glow","#E9DCE4","spark"],
+    ["Honey Lit","#E5C58A","spark"],["Copper Lit","#CD9866","spark"],
+    ["Gold Foil","#D8B45A","spark"],["Rose Foil","#E0A78F","spark"],["Bronze Foil","#B57E4B","spark"],["Silver Frost","#D7D9DE","spark"],
+    ["Champagne Spark","#E8CFA0","spark"],["Copper Spark","#C07A45","spark"],["Pewter Spark","#9AA0A6","spark"],["Emerald Glitter","#2E9E6B","spark"],
+    ["Sapphire Glitter","#3A66B0","spark"],["Amethyst Glitter","#7E5AA8","spark"],["Garnet Glitter","#B0354A","spark"],["Topaz Glitter","#D89A3A","spark"],
+    ["Teal Duochrome","#2E8C8C","spark"],["Violet Duochrome","#7C5CC0","spark"],["Peacock Duochrome","#2A6C92","spark"],["Rosé Gold Foil","#D69A86","spark"],
+    ["Moonstone","#CFD2E0","spark"],["Holo Mist","#C8C0E0","spark"],["Sunlit Topaz","#E0B468","spark"],["Black Diamond","#3A3A44","spark"],
+    ["Mermaid Teal","#2FA89A","spark"],["Ruby Sparkle","#C23A52","spark"],["Frosted Lilac","#C6ACE0","spark"],["Molten Gold","#CFA13A","spark"]
+  ],
+  "Brow": [
+    ["Soft Blonde","#B89A78"],["Taupe Brow","#8E7A66"],["Soft Brown","#6E5848"],["Medium Brown","#574234"],["Dark Brown","#3E2E24"],["Ebony","#2A2018"]
+  ],
+  "Primer": [
+    ["Porcelain","#F3D6C2"],["Ivory","#ECC6AA"],["Sand","#E0B493"],["Beige","#D2A07C"],["Honey","#C08C63"],
+    ["Golden","#B07A4F"],["Caramel","#9C6A45"],["Almond","#8A5A3C"],["Chestnut","#744A30"],["Espresso","#5E3A26"],
+    ["Mahogany","#4A2E1E"],["Rich Cocoa","#3C261A"]
+  ],
+  "Eye Liner": [
+    ["Onyx Black","#15121A"],["Soft Black","#26222A"],["Graphite","#3A3A40"],["Smoke Grey","#4E4A52"],
+    ["Espresso Brown","#3E2C22"],["Cocoa Brown","#5A4234"],["Taupe Liner","#7E7064"],["Terracotta Liner","#A85C40"],
+    ["Bronze Liner","#9C6A3E"],["Gold Liner","#C7A24E"],["Copper Liner","#B0683E"],["Olive Liner","#6E6A3C"],
+    ["Forest Green","#2E5A3E"],["Emerald Liner","#1E7A56"],["Teal Liner","#1F6E72"],["Peacock Blue","#1F5E78"],
+    ["Azure Liner","#2E78D8"],["Cobalt Liner","#2E4FA0"],["Navy Ink","#26304E"],["Sapphire Liner","#2E4A8C"],
+    ["Violet Liner","#6E3A86"],["Plum Liner","#4E2E4A"],["Berry Liner","#7C2E48"],["Burgundy Liner","#5E2230"],
+    ["Nude Liner","#D8B89A"],["White Liner","#F2EEE8"]
+  ]
+};
+const TONES = [
+  ["Porcelain","#F3D6C2"],["Sand","#E0B493"],["Honey","#C08C63"],
+  ["Caramel","#9C6A45"],["Almond","#8A5A3C"],["Espresso","#5E3A26"],["Rich Cocoa","#3C261A"]
+];
+
+/* ====================== MODEL FACES + EYE/HAIR OPTIONS ====================== */
+const MODELS = [
+  {name:"Porcelain", skin:"#F1D3BE", hi:"#FCE9DB", sh:"#D2A082", lip:"#CE8F86", hair:"#5A4334", brow:"#5A4334", iris:"#7A5A38"},
+  {name:"Beige",     skin:"#E6BC97", hi:"#F4D5B7", sh:"#C2905F", lip:"#C2796B", hair:"#3E2C1F", brow:"#3E2C1F", iris:"#5A3C24"},
+  {name:"Honey",     skin:"#C9986B", hi:"#DEB489", sh:"#A4703F", lip:"#A65D4C", hair:"#2E2018", brow:"#2E2018", iris:"#43301B"},
+  {name:"Bronze",    skin:"#A06A44", hi:"#BE8959", sh:"#7A4B2C", lip:"#88483A", hair:"#241A11", brow:"#241A11", iris:"#33220F"},
+  {name:"Deep",      skin:"#6E4630", hi:"#90603F", sh:"#4C2E1E", lip:"#5C3322", hair:"#160F09", brow:"#160F09", iris:"#241710"}
+];
+const EYE_COLORS=[["Brown","#5B3A22"],["Black","#221812"],["Green","#587A4A"],["Hazel","#8A6A3C"],["Blue","#5E84A6"]];
+const HAIR_COLORS=[["Black","#141014"],["Brown","#4A3322"],["Grey","#9E9890"],["Red","#9E4423"]];
+const FW=600, FH=720;
+function P(x,y){return {x,y};}
+function pathClosed(ctx,p){const n=p.length;ctx.moveTo(p[0].x,p[0].y);
+  for(let i=0;i<n;i++){const p0=p[(i-1+n)%n],p1=p[i],p2=p[(i+1)%n],p3=p[(i+2)%n];
+    const c1x=p1.x+(p2.x-p0.x)/6,c1y=p1.y+(p2.y-p0.y)/6,c2x=p2.x-(p3.x-p1.x)/6,c2y=p2.y-(p3.y-p1.y)/6;
+    ctx.bezierCurveTo(c1x,c1y,c2x,c2y,p2.x,p2.y);} ctx.closePath();}
+function softBlob(ctx,cx,cy,rx,ry,color,alpha,blur){ctx.save();try{ctx.filter='blur('+blur+'px)';}catch(e){}
+  ctx.globalAlpha=alpha;ctx.fillStyle=color;ctx.beginPath();ctx.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);ctx.fill();ctx.restore();}
+
+function drawModelFace(ctx, t){
+  ctx.clearRect(0,0,FW,FH);
+  const bg=ctx.createLinearGradient(0,0,0,FH); bg.addColorStop(0,'#FCFBF7'); bg.addColorStop(1,'#EFE7D8');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,FW,FH);
+  const blush=mixHex(t.skin,t.lip,0.35);
+
+  const hairPts=[P(300,-30),P(440,-15),P(560,130),P(590,380),P(560,580),P(470,700),P(360,752),P(300,760),P(240,752),P(130,700),P(40,580),P(10,380),P(40,130),P(160,-15)];
+  ctx.beginPath(); pathClosed(ctx,hairPts); ctx.fillStyle=t.hair; ctx.fill();
+  softBlob(ctx,182,210,70,150,mixHex(t.hair,'#ffffff',0.16),0.30,30);
+  softBlob(ctx,430,230,55,140,mixHex(t.hair,'#000000',0.22),0.28,30);
+
+  ctx.beginPath(); pathClosed(ctx,[P(252,626),P(348,626),P(374,720),P(226,720)]); ctx.fillStyle=t.skin; ctx.fill();
+  softBlob(ctx,300,666,112,26,t.sh,0.42,18);
+
+  const facePts=[P(300,112),P(392,124),P(462,180),P(500,288),P(502,392),P(482,492),P(432,580),P(360,635),P(300,652),P(240,635),P(168,580),P(118,492),P(98,392),P(100,288),P(138,180),P(208,124)];
+  const fg=ctx.createRadialGradient(300,338,60,300,360,290);
+  fg.addColorStop(0,t.hi); fg.addColorStop(0.5,t.skin); fg.addColorStop(1,mixHex(t.skin,t.sh,0.5));
+  ctx.beginPath(); pathClosed(ctx,facePts); ctx.fillStyle=fg; ctx.fill();
+
+  ctx.save(); ctx.beginPath(); pathClosed(ctx,facePts); ctx.clip();
+  softBlob(ctx,300,196,130,70,t.hi,0.26,40);
+  softBlob(ctx,122,330,72,190,t.sh,0.26,42);
+  softBlob(ctx,478,330,72,190,t.sh,0.26,42);
+  softBlob(ctx,196,415,86,64,t.hi,0.28,32);
+  softBlob(ctx,404,415,86,64,t.hi,0.28,32);
+  softBlob(ctx,180,478,78,46,t.sh,0.20,36);
+  softBlob(ctx,420,478,78,46,t.sh,0.20,36);
+  softBlob(ctx,300,612,72,42,t.hi,0.22,28);
+  softBlob(ctx,300,398,14,82,t.hi,0.38,12);
+  softBlob(ctx,278,418,12,56,t.sh,0.22,16);
+  softBlob(ctx,322,418,12,56,t.sh,0.22,16);
+  softBlob(ctx,300,454,18,13,t.hi,0.40,9);
+  softBlob(ctx,281,460,8,6,t.sh,0.40,5);
+  softBlob(ctx,319,460,8,6,t.sh,0.40,5);
+  softBlob(ctx,300,478,30,9,t.sh,0.16,14);
+  softBlob(ctx,198,432,62,42,blush,0.15,30);
+  softBlob(ctx,402,432,62,42,blush,0.15,30);
+  softBlob(ctx,300,450,24,16,blush,0.10,16);
+  for(let i=0;i<460;i++){const x=104+Math.random()*392,y=130+Math.random()*500;ctx.globalAlpha=0.012+Math.random()*0.02;ctx.fillStyle=(Math.random()<0.5?'#000':'#fff');ctx.fillRect(x,y,1,1);}
+  ctx.globalAlpha=1; ctx.restore();
+
+  ctx.beginPath(); pathClosed(ctx,[P(138,168),P(208,138),P(300,160),P(392,138),P(462,168),P(472,84),P(300,66),P(128,84)]); ctx.fillStyle=t.hair; ctx.fill();
+
+  function eye(cx){
+    const m=cx<300?-1:1;                          // -1 left eye, +1 right eye
+    softBlob(ctx,cx,346,54,28,t.sh,0.16,20);
+    const scl=[P(cx+50,361),P(cx+6,335),P(cx-50,365),P(cx+0,383)];
+    ctx.beginPath(); pathClosed(ctx,scl); ctx.fillStyle='#F4EEE8'; ctx.fill();
+    ctx.save(); ctx.beginPath(); pathClosed(ctx,scl); ctx.clip();
+    ctx.beginPath(); ctx.arc(cx,362,24,0,Math.PI*2); ctx.fillStyle=t.iris; ctx.fill();
+    softBlob(ctx,cx,350,24,16,'#000000',0.18,8);
+    ctx.beginPath(); ctx.arc(cx,362,23,0,Math.PI*2); ctx.strokeStyle='rgba(0,0,0,.30)'; ctx.lineWidth=2.5; ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx,362,10,0,Math.PI*2); ctx.fillStyle='#140E11'; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx-8,353,4,0,Math.PI*2); ctx.fillStyle='rgba(255,255,255,.92)'; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx+6,368,2,0,Math.PI*2); ctx.fillStyle='rgba(255,255,255,.45)'; ctx.fill();
+    ctx.restore();
+    const lash=[P(cx-50,364),P(cx+6,333),P(cx+50,357),P(cx+50,363),P(cx+6,341),P(cx-48,366)];
+    ctx.beginPath(); pathClosed(ctx,lash); ctx.fillStyle='#201619'; ctx.fill();
+    ctx.beginPath(); ctx.moveTo(cx-46,367); ctx.quadraticCurveTo(cx,383,cx+46,366); ctx.strokeStyle='rgba(40,28,30,.5)'; ctx.lineWidth=1.6; ctx.lineCap='round'; ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(cx-42,330); ctx.quadraticCurveTo(cx,314,cx+46,330); ctx.strokeStyle=mixHex(t.sh,'#000000',0.1); ctx.globalAlpha=0.32; ctx.lineWidth=2; ctx.stroke(); ctx.globalAlpha=1;
+    softBlob(ctx,cx - m*49,365,5,4,mixHex(t.lip,'#ffffff',0.3),0.4,4);   // tear duct at INNER corner
+    ctx.strokeStyle='#201619'; ctx.lineWidth=2; ctx.lineCap='round';      // lashes at OUTER corner (mirrored)
+    for(let k=0;k<3;k++){const bx=cx+m*(42+k*4), by=357+k*1.5; ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(bx+m*8,by-8); ctx.stroke();}
+  }
+  eye(222); eye(378);
+
+  function brow(cx){
+    const m=cx<300?-1:1;
+    const pts=[P(cx-m*58,290),P(cx+m*17,270),P(cx+m*46,284),P(cx+m*46,290),P(cx+m*17,278),P(cx-m*58,298)];
+    ctx.save(); try{ctx.filter='blur(1.3px)';}catch(e){}
+    ctx.beginPath(); pathClosed(ctx,pts); ctx.fillStyle=t.brow; ctx.fill(); ctx.restore();
+    ctx.strokeStyle=mixHex(t.brow,'#000000',0.2); ctx.lineWidth=1; ctx.lineCap='round'; ctx.globalAlpha=0.5;
+    for(let k=0;k<6;k++){const tt=k/5;const x=cx-m*52+m*96*tt;const y=294-22*Math.sin(tt*Math.PI*0.9);ctx.beginPath();ctx.moveTo(x,y+4);ctx.lineTo(x+m*5,y-5);ctx.stroke();}
+    ctx.globalAlpha=1;
+  }
+  brow(222); brow(378);
+
+  const mouth=[P(238,538),P(276,519),P(300,527),P(324,519),P(362,538),P(336,567),P(300,582),P(264,567)];
+  const lg=ctx.createLinearGradient(0,518,0,584);
+  lg.addColorStop(0,mixHex(t.lip,'#000000',0.16)); lg.addColorStop(0.5,t.lip); lg.addColorStop(1,mixHex(t.lip,'#ffffff',0.12));
+  ctx.beginPath(); pathClosed(ctx,mouth); ctx.fillStyle=lg; ctx.fill();
+  ctx.save(); ctx.beginPath(); pathClosed(ctx,mouth); ctx.clip();
+  softBlob(ctx,300,566,30,10,mixHex(t.lip,'#ffffff',0.55),0.45,9);
+  softBlob(ctx,300,524,40,7,mixHex(t.lip,'#000000',0.2),0.30,7);
+  ctx.restore();
+  ctx.beginPath(); ctx.moveTo(238,538); ctx.quadraticCurveTo(300,543,362,538); ctx.strokeStyle=mixHex(t.lip,'#000000',0.4); ctx.lineWidth=1.8; ctx.lineCap='round'; ctx.stroke();
+  softBlob(ctx,300,590,36,8,t.sh,0.22,12);
+}
+
+/* ====================== STATE + ENGINE ====================== */
+const state={color:"#9E2A33",name:"Crushed Garnet",cat:"Lip",coverage:0.70,finish:"satin",brush:34,erase:false,skinOnly:true,W:0,H:0,model:-1,eyeColor:null,hairColor:null};
+const $=s=>document.querySelector(s);
+const stage=$("#stageCanvas"), sctx=stage.getContext("2d",{willReadFrequently:true});
+let baseData=null, paint=null, mkcol=null, undoStack=[];
+
+const tabsEl=$("#tabs"), swEl=$("#swatches");
+const GROUPS=[{tag:undefined,label:"Matte & Satin"},{tag:"neon",label:"Neons"},{tag:"spark",label:"Shimmer & Glitter"}];
+function buildTabs(){tabsEl.innerHTML="";Object.keys(LIBRARY).forEach(cat=>{const b=document.createElement("button");
+  b.className="tab"+(cat===state.cat?" active":"");b.textContent=cat;b.onclick=()=>{state.cat=cat;buildTabs();buildSwatches();};tabsEl.appendChild(b);});}
+function swGrid(list){const g=document.createElement("div");g.className="swgrid";
+  list.forEach(([nm,hex,tag])=>{const d=document.createElement("div");
+    let cls="sw"+(hex===state.color?" sel":"");if(tag==="spark")cls+=" spark";else if(tag==="neon")cls+=" neon";
+    d.className=cls;d.style.background=hex;d.title=nm;d.onclick=()=>selectShade(nm,hex,state.cat);g.appendChild(d);});return g;}
+function swLabel(txt){const l=document.createElement("div");l.className="swglabel";l.textContent=txt;return l;}
+function buildSwatches(){swEl.innerHTML="";const shades=LIBRARY[state.cat];
+  const groups=GROUPS.map(g=>({label:g.label,items:shades.filter(s=>(s[2]||undefined)===g.tag)})).filter(g=>g.items.length);
+  if(groups.length<=1){swEl.appendChild(swGrid(shades));return;}
+  groups.forEach(g=>{swEl.appendChild(swLabel(g.label));swEl.appendChild(swGrid(g.items));});}
+function selectShade(nm,hex,cat){state.color=hex;state.name=nm;state.cat=cat;
+  $("#selSwatch").style.background=hex;$("#selName").textContent=nm;$("#selHex").textContent=hex.toUpperCase();$("#selCat").textContent=cat;
+  document.querySelectorAll(".sw").forEach(s=>s.classList.toggle("sel",s.title===nm));updateSig();renderLadder();}
+
+$("#coverage").oninput=e=>{state.coverage=+e.target.value/100;$("#covV").textContent=e.target.value+"%";scheduleRender();renderLadder();};
+$("#brush").oninput=e=>{state.brush=+e.target.value;$("#brushV").textContent=e.target.value+" px";};
+$("#finish").querySelectorAll("button").forEach(b=>{b.onclick=()=>{state.finish=b.dataset.f;
+  $("#finish").querySelectorAll("button").forEach(x=>x.classList.remove("active"));b.classList.add("active");updateSig();scheduleRender();renderLadder();};});
+$("#skinOnly").onchange=e=>state.skinOnly=e.target.checked;
+const eraseBtn=$("#eraseBtn");eraseBtn.onclick=()=>{state.erase=!state.erase;eraseBtn.classList.toggle("on",state.erase);};
+function updateSig(){const fin=state.finish.charAt(0).toUpperCase()+state.finish.slice(1);$("#sigShade").textContent=state.name+" · "+fin;}
+
+/* model / eye / hair pickers */
+function effTone(m){return Object.assign({},m,{
+  iris: state.eyeColor||m.iris,
+  hair: state.hairColor||m.hair,
+  brow: state.hairColor?mixHex(state.hairColor,'#000000',0.10):m.brow
+});}
+function markDots(container,hex){container.querySelectorAll(".mdot").forEach(d=>d.classList.toggle("sel",d.dataset.hex===hex));}
+
+const mdotsEl=$("#mdots");
+MODELS.forEach((m,i)=>{const d=document.createElement("div");d.className="mdot";d.style.background=m.skin;d.title=m.name+" skin";
+  d.onclick=()=>loadModel(i);mdotsEl.appendChild(d);});
+function setMdotSel(){document.querySelectorAll("#mdots .mdot").forEach((d,i)=>d.classList.toggle("sel",i===state.model));}
+
+const eyedotsEl=$("#eyedots"), hairdotsEl=$("#hairdots");
+EYE_COLORS.forEach(([nm,hex])=>{const d=document.createElement("div");d.className="mdot";d.style.background=hex;d.dataset.hex=hex;d.title=nm+" eyes";
+  d.onclick=()=>{state.eyeColor=hex;markDots(eyedotsEl,hex);applyFaceTweak();};eyedotsEl.appendChild(d);});
+HAIR_COLORS.forEach(([nm,hex])=>{const d=document.createElement("div");d.className="mdot";d.style.background=hex;d.dataset.hex=hex;d.title=nm+" hair";
+  d.onclick=()=>{state.hairColor=hex;markDots(hairdotsEl,hex);applyFaceTweak();};hairdotsEl.appendChild(d);});
+
+function loadModel(i){state.model=i;const m=MODELS[i];
+  stage.width=FW;stage.height=FH;state.W=FW;state.H=FH;drawModelFace(sctx,effTone(m));
+  baseData=sctx.getImageData(0,0,FW,FH).data.slice();
+  paint=new Float32Array(FW*FH);mkcol=new Uint8ClampedArray(FW*FH*3);undoStack=[];
+  $("#empty").style.display="none";stage.style.display="block";
+  ["beforeBtn","undoBtn","resetBtn","saveBtn"].forEach(id=>$("#"+id).disabled=false);$("#undoBtn").disabled=true;
+  setMdotSel();renderRegion(0,0,FW,FH);}
+/* redraw the face base for eye/hair change, keeping any makeup already brushed on */
+function applyFaceTweak(){
+  if(state.model<0){ if(!baseData) loadModel(0); return; }   // photo loaded -> leave it; nothing loaded -> show a model
+  drawModelFace(sctx,effTone(MODELS[state.model]));
+  baseData=sctx.getImageData(0,0,FW,FH).data.slice();
+  renderRegion(0,0,FW,FH);
+}
+$("#shuffleBtn").onclick=()=>loadModel(Math.floor(Math.random()*MODELS.length));
+$("#useModelBtn").onclick=()=>loadModel(Math.floor(Math.random()*MODELS.length));
+
+$("#file").onchange=e=>{const fl=e.target.files[0];if(!fl)return;const img=new Image();
+  img.onload=()=>{const MAX=1024;let w=img.width,h=img.height;if(Math.max(w,h)>MAX){const s=MAX/Math.max(w,h);w=Math.round(w*s);h=Math.round(h*s);}
+    stage.width=w;stage.height=h;state.W=w;state.H=h;state.model=-1;setMdotSel();
+    sctx.drawImage(img,0,0,w,h);baseData=sctx.getImageData(0,0,w,h).data.slice();
+    paint=new Float32Array(w*h);mkcol=new Uint8ClampedArray(w*h*3);undoStack=[];
+    $("#empty").style.display="none";stage.style.display="block";
+    ["beforeBtn","undoBtn","resetBtn","saveBtn"].forEach(id=>$("#"+id).disabled=false);$("#undoBtn").disabled=true;
+    renderRegion(0,0,w,h);};
+  img.src=URL.createObjectURL(fl);};
+
+function isSkin(r,g,b){const cb=128-0.168736*r-0.331264*g+0.5*b,cr=128+0.5*r-0.418688*g-0.081312*b;
+  return cr>=128&&cr<=190&&cb>=78&&cb<=140&&r>=40&&r>=b-4;}
+
+let drawing=false,dirty=null;
+function snapshot(){if(!paint)return;undoStack.push({p:paint.slice(),m:mkcol.slice()});if(undoStack.length>14)undoStack.shift();$("#undoBtn").disabled=false;}
+function stamp(cx,cy){const W=state.W,H=state.H,R=state.brush;const [mr,mg,mb]=hex2rgb(state.color);
+  const x0=Math.max(0,Math.floor(cx-R)),x1=Math.min(W-1,Math.ceil(cx+R)),y0=Math.max(0,Math.floor(cy-R)),y1=Math.min(H-1,Math.ceil(cy+R));
+  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){const dx=x-cx,dy=y-cy,d=Math.sqrt(dx*dx+dy*dy);if(d>R)continue;const i=y*W+x;
+    if(state.skinOnly&&!state.erase){const bi=i*4;if(!isSkin(baseData[bi],baseData[bi+1],baseData[bi+2]))continue;}
+    const fall=1-(d/R)*(d/R),flow=0.22*fall;
+    if(state.erase){paint[i]=Math.max(0,paint[i]-flow*2.2);}else{paint[i]=Math.min(1,paint[i]+flow);mkcol[i*3]=mr;mkcol[i*3+1]=mg;mkcol[i*3+2]=mb;}}
+  if(!dirty)dirty={x0,y0,x1,y1};else{dirty.x0=Math.min(dirty.x0,x0);dirty.y0=Math.min(dirty.y0,y0);dirty.x1=Math.max(dirty.x1,x1);dirty.y1=Math.max(dirty.y1,y1);}}
+function evtPos(e){const r=stage.getBoundingClientRect();const cx=(e.touches?e.touches[0].clientX:e.clientX)-r.left,cy=(e.touches?e.touches[0].clientY:e.clientY)-r.top;
+  return [cx*stage.width/r.width,cy*stage.height/r.height];}
+function down(e){if(!baseData)return;e.preventDefault();drawing=true;snapshot();const[x,y]=evtPos(e);stamp(x,y);rafRender();}
+function move(e){if(!drawing)return;e.preventDefault();const[x,y]=evtPos(e);stamp(x,y);rafRender();}
+function up(){drawing=false;if(dirty){renderRegion(dirty.x0,dirty.y0,dirty.x1+1,dirty.y1+1);dirty=null;}}
+stage.addEventListener("mousedown",down);stage.addEventListener("mousemove",move);window.addEventListener("mouseup",up);
+stage.addEventListener("touchstart",down,{passive:false});stage.addEventListener("touchmove",move,{passive:false});window.addEventListener("touchend",up);
+let rafQueued=false;function rafRender(){if(rafQueued)return;rafQueued=true;requestAnimationFrame(()=>{rafQueued=false;if(dirty)renderRegion(dirty.x0,dirty.y0,dirty.x1+1,dirty.y1+1);});}
+let schedT=null;function scheduleRender(){if(!baseData)return;clearTimeout(schedT);schedT=setTimeout(()=>renderRegion(0,0,state.W,state.H),20);}
+
+function renderRegion(rx0,ry0,rx1,ry1){if(!baseData)return;const W=state.W;
+  rx0=Math.max(0,rx0|0);ry0=Math.max(0,ry0|0);rx1=Math.min(W,rx1|0);ry1=Math.min(state.H,ry1|0);
+  const w=rx1-rx0,h=ry1-ry0;if(w<=0||h<=0)return;const out=sctx.createImageData(w,h),o=out.data;
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){const gx=rx0+x,gy=ry0+y,i=gy*W+gx,bi=i*4,oi=(y*w+x)*4;const cov=paint[i]*state.coverage;
+    if(cov<=0.003){o[oi]=baseData[bi];o[oi+1]=baseData[bi+1];o[oi+2]=baseData[bi+2];o[oi+3]=255;}
+    else{let [r,g,b]=blend(baseData[bi],baseData[bi+1],baseData[bi+2],mkcol[i*3],mkcol[i*3+1],mkcol[i*3+2],Math.min(1,cov),state.finish);
+      const sp=sparkle(gx,gy,state.finish)*Math.min(1,cov);
+      if(sp>0){r=Math.min(255,r+sp*255);g=Math.min(255,g+sp*247);b=Math.min(255,b+sp*235);}
+      o[oi]=r;o[oi+1]=g;o[oi+2]=b;o[oi+3]=255;}}
+  sctx.putImageData(out,rx0,ry0);}
+
+const beforeBtn=$("#beforeBtn");
+function showBefore(on){if(!baseData)return;if(on){const id=sctx.createImageData(state.W,state.H);id.data.set(baseData);sctx.putImageData(id,0,0);}else renderRegion(0,0,state.W,state.H);}
+["mousedown","touchstart"].forEach(ev=>beforeBtn.addEventListener(ev,e=>{e.preventDefault();showBefore(true);}));
+["mouseup","mouseleave","touchend"].forEach(ev=>beforeBtn.addEventListener(ev,()=>showBefore(false)));
+$("#undoBtn").onclick=()=>{if(!undoStack.length)return;const s=undoStack.pop();paint=s.p;mkcol=s.m;if(!undoStack.length)$("#undoBtn").disabled=true;renderRegion(0,0,state.W,state.H);};
+$("#resetBtn").onclick=()=>{if(!paint)return;snapshot();paint.fill(0);renderRegion(0,0,state.W,state.H);};
+$("#saveBtn").onclick=()=>{const a=document.createElement("a");a.download="megs-closet.png";a.href=stage.toDataURL("image/png");a.click();};
+
+const ladderEl=$("#ladder");const PW=120,PH=150;
+function buildLadder(){ladderEl.innerHTML="";TONES.forEach(([nm,hex])=>{const wrap=document.createElement("div");wrap.className="tone";
+  const c=document.createElement("canvas");c.width=PW;c.height=PH;c.dataset.tone=hex;const lbl=document.createElement("div");lbl.className="nm";lbl.textContent=nm;
+  wrap.appendChild(c);wrap.appendChild(lbl);ladderEl.appendChild(wrap);});renderLadder();}
+function makeSkinPatch(ctx,hex){const [r,g,b]=hex2rgb(hex);const img=ctx.createImageData(PW,PH),d=img.data;
+  const cx=PW*0.42,cy=PH*0.34,maxd=Math.hypot(PW,PH)*0.7;
+  for(let y=0;y<PH;y++)for(let x=0;x<PW;x++){const i=(y*PW+x)*4;const dd=Math.hypot(x-cx,y-cy)/maxd;const hi=Math.max(0,1-dd*1.5),sh=Math.max(0,dd-0.55)*0.6;let fct=1+hi*0.26-sh;
+    d[i]=Math.min(255,r*fct);d[i+1]=Math.min(255,g*fct);d[i+2]=Math.min(255,b*fct);d[i+3]=255;}return img;}
+function renderLadder(){document.querySelectorAll(".tone canvas").forEach(c=>{const ctx=c.getContext("2d");const base=makeSkinPatch(ctx,c.dataset.tone);
+  const out=ctx.createImageData(PW,PH);const [mr,mg,mb]=hex2rgb(state.color);const ocx=PW/2,ocy=PH/2,orx=PW*0.40,ory=PH*0.44;
+  for(let y=0;y<PH;y++)for(let x=0;x<PW;x++){const i=(y*PW+x)*4;const nx=(x-ocx)/orx,ny=(y-ocy)/ory,inside=nx*nx+ny*ny;
+    const br=base.data[i],bg=base.data[i+1],bb=base.data[i+2];
+    if(inside>1){out.data[i]=br;out.data[i+1]=bg;out.data[i+2]=bb;out.data[i+3]=255;continue;}
+    const edge=Math.min(1,(1-inside)*3),cov=Math.min(1,state.coverage*edge);
+    let [rr,gg,bbb]=blend(br,bg,bb,mr,mg,mb,cov,state.finish);
+    const sp=sparkle(x,y,state.finish)*cov; if(sp>0){rr=Math.min(255,rr+sp*255);gg=Math.min(255,gg+sp*247);bbb=Math.min(255,bbb+sp*235);}
+    out.data[i]=rr;out.data[i+1]=gg;out.data[i+2]=bbb;out.data[i+3]=255;}
+  ctx.putImageData(out,0,0);});}
+
+buildTabs();buildSwatches();selectShade("Crushed Garnet","#9E2A33","Lip");buildLadder();updateSig();
+</script>
+</body>
+</html>
