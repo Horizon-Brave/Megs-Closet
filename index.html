@@ -25,6 +25,7 @@
   .brand{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
   .mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--emerald),var(--emerald-deep));display:flex;align-items:center;justify-content:center;color:#fff;flex:0 0 auto;box-shadow:0 4px 12px rgba(18,92,65,.28)}
   .mark span{font-family:var(--display);font-weight:600;font-size:18px;line-height:1}
+  .mark svg{width:23px;height:23px;display:block}
   .brand h1{font-family:var(--display);font-weight:500;font-size:clamp(25px,4vw,38px);letter-spacing:-.01em;margin:0;line-height:1}
   .brand .tag{color:var(--muted);font-size:14px;max-width:42ch}
   .rule{height:1px;background:linear-gradient(90deg,var(--oak-light),var(--line),transparent);margin:16px 0 0}
@@ -133,9 +134,21 @@
 
 <header>
   <div class="brand">
-    <div class="mark"><span>M</span></div>
+    <div class="mark" title="Meg's Closet">
+      <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <!-- bristles fanned into an M -->
+        <path d="M6.5 19 L6.5 5.5 L16 13 L25.5 5.5 L25.5 19" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M11 16.5 L11 8.5" stroke="#fff" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+        <path d="M21 16.5 L21 8.5" stroke="#fff" stroke-width="1" stroke-linecap="round" opacity="0.5"/>
+        <!-- ferrule -->
+        <rect x="5.4" y="18.9" width="21.2" height="4" rx="1.8" fill="#fff"/>
+        <rect x="5.4" y="20.4" width="21.2" height="1" rx="0.5" fill="#125C41" opacity="0.4"/>
+        <!-- handle -->
+        <path d="M13.4 22.9 H18.6 L17.7 29.4 Q16 30.3 14.3 29.4 Z" fill="#fff"/>
+      </svg>
+    </div>
     <h1>Meg's Closet</h1>
-    <span class="tag">A makeup try-on lab. Brush original cosmetic shades onto your own photo — or a built-in model — and watch them behave like real product on skin.</span>
+    <span class="tag">A makeup try-on lab built for my girlfriend Meaghan. You're amaze bae. The rest of ya'll feel free to use the lab and any feedback please send to scf2600@gmail.com please! Appreciate you all!</span>
   </div>
   <div class="rule"></div>
 </header>
@@ -470,7 +483,7 @@ function drawModelFace(ctx, t){
     ctx.beginPath(); ctx.moveTo(cx-42,330); ctx.quadraticCurveTo(cx,314,cx+46,330); ctx.strokeStyle=mixHex(t.sh,'#000000',0.1); ctx.globalAlpha=0.32; ctx.lineWidth=2; ctx.stroke(); ctx.globalAlpha=1;
     softBlob(ctx,cx - m*49,365,5,4,mixHex(t.lip,'#ffffff',0.3),0.4,4);   // tear duct at INNER corner
     ctx.strokeStyle='#201619'; ctx.lineWidth=2; ctx.lineCap='round';      // lashes at OUTER corner (mirrored)
-    for(let k=0;k<3;k++){const bx=cx+m*(42+k*4), by=357+k*1.5; ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(bx+m*8,by-8); ctx.stroke();}
+    for(let k=0;k<6;k++){const bx=cx+m*(40+k*2.4), by=357.5+k*1.0; ctx.beginPath(); ctx.moveTo(bx,by); ctx.lineTo(bx+m*9,by-(9-(k%2)*1.5)); ctx.stroke();}
   }
   eye(222); eye(378);
 
